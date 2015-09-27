@@ -12,20 +12,28 @@ npm install --save cempl
 # Usage
 
 ``` coffeescript
-html = require('cempl')
+html = require('../index')
 
+# Define a component that can be reused
 standardHeader = (title) ->
   @head(->
-    @meta('charset':'utf-8', -> )
-    @meta('X-UA-Compatible':'IE=edge', -> )
-    @meta('Content-Language':'en', -> )
+    # HTML tag attributes is passed on as objects
+    @meta('charset':'utf-8')
+    @meta('X-UA-Compatible':'IE=edge')
+    @meta('Content-Language':'en')
+    # Variables is of course possible to use
     @title(title))
 
 raw = html(->
+  # @apply makes it possible to build components
   @apply(standardHeader, 'My Title')
   @body(->
-    @div(->
-      @text("Hello")))).eval()
+    # Uses the @text function to insert inner html
+    @div(-> @text("Hello"))
+    # Passes the inner html as argument
+    @div("World")
+  # eval evaluates the tree and returns the html as string
+  )).eval()
 
 console.log(raw)
 ```
@@ -40,15 +48,9 @@ html = require('../index');
 
 standardHeader = function(title) {
   return this.head(function() {
-    this.meta({
-      'charset': 'utf-8'
-    }, function() {});
-    this.meta({
-      'X-UA-Compatible': 'IE=edge'
-    }, function() {});
-    this.meta({
-      'Content-Language': 'en'
-    }, function() {});
+    this.meta({ 'charset': 'utf-8' });
+    this.meta({ 'X-UA-Compatible': 'IE=edge' });
+    this.meta({ 'Content-Language': 'en' });
     return this.title(title);
   });
 };
@@ -56,9 +58,10 @@ standardHeader = function(title) {
 raw = html(function() {
   this.apply(standardHeader, 'My Title');
   return this.body(function() {
-    return this.div(function() {
+    this.div(function() {
       return this.text("Hello");
     });
+    return this.div("World");
   });
 })["eval"]();
 
@@ -68,7 +71,7 @@ console.log(raw);
 Outputs
 
 ``` html
-<html><head><meta charset='utf-8'></meta><meta X-UA-Compatible='IE=edge'></meta><meta Content-Language='en'></meta><title>My Title</title></head><body><div>Hello</div></body></html>
+<html><head><meta charset='utf-8'></meta><meta X-UA-Compatible='IE=edge'></meta><meta Content-Language='en'></meta><title>My Title</title></head><body><div>Hello</div><div>World</div></body></html>
 ```
 
 Built in tags: 
