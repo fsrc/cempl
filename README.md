@@ -89,7 +89,7 @@ Built in tags:
   'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'menuitem',
   'meta', 'meter', 'nav', 'noframes', 'efines ', 'noscript', 'object',
   'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress',
-  'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select',
+  'q', 'rp', 'rt', 'ruby', 's', 'samp', 'section', 'select',
   'small', 'source', 'span', 'strike', 'efines ', 'strong', 'style',
   'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot',
   'th', 'thead', 'time', 'title', 'tr', 'track', 'tt', 'efines', 'u',
@@ -105,6 +105,10 @@ raw = html(->
   @body(->
     @tag('my-own-tag')))
 ```
+
+# Versioning
+## 0.0.3
+Script-tag is now an exception to the general rule of tags. It can be used either as a regular tag passing arguments. Or it can take a function. The function will be stringified and unwrapped. It will then be put inside the script tag.
 
 # Todo
 Same thing for CSS

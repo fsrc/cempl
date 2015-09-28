@@ -2,6 +2,13 @@ _ = require('lodash')
 
 elements = require('./elements')
 
+unwrapFunctionToString = (fn) ->
+  code = fn.toString()
+  lines = code.split('\n')
+  lines = _.initial(_.tail(lines))
+  lines = _.map(lines, (line) -> _.trim(line))
+  lines.join("")
+
 ensureArguments = (tag, attr, content) ->
   f    = null
   text = null
@@ -39,10 +46,26 @@ markup = (intag, inattr, incontent) ->
 
     wrapper =
       apply : (f, args...) -> _.bind(f, wrapper, args...)()
-      tag : tagfn
-      text : (text) -> children.push(eval:() -> text)
-      eval : () ->
 
+      tag : tagfn
+
+      text : (text) -> children.push(eval:() -> text)
+
+      script : (ref) ->
+        if _.isPlainObject(ref)
+          children.push(eval:() ->
+            attribs = ""
+            attribs = " " + _.map(attr, (v, k) ->
+              "#{k}='#{v}'"
+            ).join(' ')
+
+            """<script#{attribs}></script>""")
+
+        else if _.isFunction(ref)
+          children.push(eval:() ->
+            """<script>#{unwrapFunctionToString(ref)}</script>""")
+
+      eval : () ->
         if text?
           inner = text
         else
