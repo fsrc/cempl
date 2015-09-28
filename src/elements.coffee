@@ -6,7 +6,7 @@ module.exports = [
   'col', 'colgroup', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog',
   'dir', 'efines ', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset',
   'figcaption', 'figure', 'font', 'efines ', 'footer', 'form', 'frame',
-  'efines ', 'frameset', 'efines ', 'h1', 'head', 'header', 'hr', 'html',
+  'efines ', 'frameset', 'efines ',  'head', 'header', 'hr', 'html',
   'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label',
   'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'menuitem',
   'meta', 'meter', 'nav', 'noframes', 'efines ', 'noscript', 'object',
@@ -15,4 +15,4 @@ module.exports = [
   'small', 'source', 'span', 'strike', 'efines ', 'strong', 'style',
   'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot',
   'th', 'thead', 'time', 'title', 'tr', 'track', 'tt', 'efines', 'u',
-  'ul', 'var', 'video', 'wbr']
+  'ul', 'var', 'video', 'wbr', 'h1','h2','h3','h4','h5',]
