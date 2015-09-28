@@ -7,7 +7,7 @@ unwrapFunctionToString = (fn) ->
   lines = code.split('\n')
   lines = _.initial(_.tail(lines))
   lines = _.map(lines, (line) -> _.trim(line))
-  lines.join("")
+  lines.join("").replace(/^return\s/, "")
 
 ensureArguments = (tag, attr, content) ->
   f    = null
@@ -45,26 +45,34 @@ markup = (intag, inattr, incontent) ->
       , {})
 
     wrapper =
+      # Apply
       apply : (f, args...) -> _.bind(f, wrapper, args...)()
 
+      # Generic tag
       tag : tagfn
 
+      # Inner text
       text : (text) -> children.push(eval:() -> text)
 
-      script : (ref) ->
-        if _.isPlainObject(ref)
-          children.push(eval:() ->
+      # Script tag
+      script : (arg) ->
+
+        # If the passed arg is a object
+        if _.isPlainObject(arg)
+          children.push(eval: () ->
             attribs = ""
-            attribs = " " + _.map(attr, (v, k) ->
+            attribs = " " + _.map(arg, (v, k) ->
               "#{k}='#{v}'"
             ).join(' ')
 
-            """<script#{attribs}></script>""")
+            """<script#{attribs}></script>"""
+        )
 
-        else if _.isFunction(ref)
+        else if _.isFunction(arg)
           children.push(eval:() ->
-            """<script>#{unwrapFunctionToString(ref)}</script>""")
+            """<script>#{unwrapFunctionToString(arg)}</script>""")
 
+      # Evaluate to string
       eval : () ->
         if text?
           inner = text
@@ -81,6 +89,7 @@ markup = (intag, inattr, incontent) ->
         else
           inner
 
+    # Make sure that we get all default tags aswell
     wrapper = _.assign(wrapper, all)
 
     _.bind(f, wrapper)() if f?
