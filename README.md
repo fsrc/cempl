@@ -107,6 +107,9 @@ raw = html(->
 ```
 
 # Versioning
+## 0.0.5
+Added default tags h2 to h5 in list
+
 ## 0.0.4
 Corrected bug in script-tag.
 
