@@ -107,6 +107,9 @@ raw = html(->
 ```
 
 # Versioning
+## 0.0.4
+Corrected bug in script-tag.
+
 ## 0.0.3
 Script-tag is now an exception to the general rule of tags. It can be used either as a regular tag passing arguments. Or it can take a function. The function will be stringified and unwrapped. It will then be put inside the script tag.
 
