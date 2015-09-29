@@ -91,7 +91,7 @@ ensureMarkupArguments = (tag, attr, content) ->
 # out:     the wrapper object, which contains functions that
 #          can be executed upon the tag
 ###
-markup = (intag, inattr, incontent) ->
+markup = (registeredFunctions, intag, inattr, incontent) ->
   # make sure that the arguments is correct and set them up
   [tag, attr, f, text] = ensureMarkupArguments(intag, inattr, incontent)
 
@@ -110,7 +110,7 @@ markup = (intag, inattr, incontent) ->
     # out:     the current wrapper
     ###
     tagfn = (args...) ->
-      children.push(markup(args...))
+      children.push(markup(registeredFunctions, args...))
       wrapper
 
     # this variable represents all default tags that is defined
@@ -132,6 +132,10 @@ markup = (intag, inattr, incontent) ->
       # out:     unknown
       ###
       apply : (f, args...) -> _.bind(f, wrapper, args...)()
+
+      register : (name, f) ->
+        registeredFunctions[name] = f
+        wrapper[name] = _.bind(f, wrapper)
 
       ### tag()
       # purpose: enables the programmer to use an arbitrary tag
@@ -236,7 +240,7 @@ markup = (intag, inattr, incontent) ->
           inner
 
     # Make sure that we get all default tags aswell
-    wrapper = _.assign(wrapper, all)
+    wrapper = _.assign(wrapper, all, registeredFunctions)
 
     # Execute the content function so that we can generate
     # inner html to this tag
@@ -249,5 +253,5 @@ markup = (intag, inattr, incontent) ->
     outer
 
 module.exports = (f) ->
-  markup('root_cempl_document', f)
+  markup({}, 'root_cempl_document', f)
 
