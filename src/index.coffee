@@ -69,8 +69,10 @@ ensureMarkupArguments = (tag, attr, content) ->
   else if (_.isString(attr) or _.isFunction(attr)) and _.isUndefined(content)
     content = attr # pass on the value of attr to content
     attr = null    # make sure we dont use attr
+  else if _.isUndefined(attr)
+    attr = null
   else
-    throw "Attributes must be plain objects and content must be string or function"
+    throw "In '#{tag}' attributes must be plain objects and content must be string or function"
 
   # if content is a function
   if _.isFunction(content)
