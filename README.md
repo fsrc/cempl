@@ -161,6 +161,10 @@ raw = html(->
 ```
 
 # Versioning
+## 0.0.8
+ * Updated documentation
+ * Corrected bug where empty tags wasn’t allowed
+ * @register now handles objects and arrays aswell as a name and a function
 ## 0.0.7
 Added @register
 
@@ -180,4 +184,7 @@ Corrected bug in script-tag.
 Script-tag is now an exception to the general rule of tags. It can be used either as a regular tag passing arguments. Or it can take a function. The function will be stringified and unwrapped. It will then be put inside the script tag.
 
 # Todo
-Same thing for CSS
+ * Same thing for CSS
+ * Decide scope
+ * Performance optimizations
+
