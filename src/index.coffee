@@ -136,8 +136,18 @@ markup = (registeredFunctions, intag, inattr, incontent) ->
       apply : (f, args...) -> _.bind(f, wrapper, args...)()
 
       register : (name, f) ->
-        registeredFunctions[name] = f
-        wrapper[name] = _.bind(f, wrapper)
+        if _.isObject(name)
+          _.assign(registeredFunctions, name)
+        else if _.isArray(name)
+          _.reduce(name, (registered, newfn) ->
+            _.assign(registered, newfn)
+            registered
+          , registeredFunctions)
+        else if _.isString(name) and _.isFunction(f)
+          registeredFunctions[name] = f
+          wrapper[name] = _.bind(f, wrapper)
+        else
+          throw "@register either takes an object, array or a string and a function"
 
       ### tag()
       # purpose: enables the programmer to use an arbitrary tag
