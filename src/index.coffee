@@ -20,6 +20,42 @@ elements = [
   'th', 'thead', 'time', 'title', 'tr', 'track', 'tt', 'efines', 'u',
   'ul', 'var', 'video', 'wbr', 'h1','h2','h3','h4','h5']
 
+
+indentation = (level) ->
+  _.reduce([0..level], (str, l) ->
+    str + " "
+  , "")
+
+getRootFrame = (tagStack) ->
+  if not tagStack.parent?
+    return tagStack
+  else
+    getRootFrame(tagStack.parent)
+
+attrStr = (attr) ->
+  if not attr?
+    ""
+  else
+    str = _.map(attr, (v, k) -> "#{k}:'#{v}'").join(", ")
+    " (#{str})"
+
+
+textStr = (text) ->
+  if not text?
+    ""
+  else
+    " \"#{text}\""
+
+
+printTagStack = (tagStack) ->
+  printFrame = (frame, level) ->
+    str = indentation(level) + frame.me + attrStr(frame.attr) + textStr(frame.text)
+    str = str + " ->" if frame.nodes.length > 0
+    console.error(str)
+    _.map(frame.nodes, (f) -> printFrame(f, level+1))
+
+  printFrame(getRootFrame(tagStack), 0)
+
 ### unwrapFunctionToString()
 # purpose: convert function into string that can
 #          be sent over to client side
@@ -93,9 +129,14 @@ ensureMarkupArguments = (tag, attr, content) ->
 # out:     the wrapper object, which contains functions that
 #          can be executed upon the tag
 ###
-markup = (registeredFunctions, intag, inattr, incontent) ->
+markup = (tagStack, registeredFunctions, intag, inattr, incontent) ->
+
   # make sure that the arguments is correct and set them up
   [tag, attr, f, text] = ensureMarkupArguments(intag, inattr, incontent)
+
+  frame = { parent: tagStack, me: tag, attr:attr, text: text, nodes: []}
+  tagStack.nodes.push(frame) if tagStack?
+  tagStack = frame
 
   # create a closure so that async stuff won't fail
   do (tag, attr, f, text) ->
@@ -112,7 +153,7 @@ markup = (registeredFunctions, intag, inattr, incontent) ->
     # out:     the current wrapper
     ###
     tagfn = (args...) ->
-      children.push(markup(registeredFunctions, args...))
+      children.push(markup(tagStack, registeredFunctions, args...))
       wrapper
 
     # this variable represents all default tags that is defined
@@ -135,7 +176,8 @@ markup = (registeredFunctions, intag, inattr, incontent) ->
       ###
       apply : (f, args...) ->
         if not f?
-          console.log "Warning, tried to apply subnodes in tag #{tag}"
+          console.error("Warning, tried to apply subnodes in tag stack:")
+          printTagStack(tagStack)
         else
           _.bind(f, wrapper, args...)()
 
@@ -264,12 +306,10 @@ markup = (registeredFunctions, intag, inattr, incontent) ->
       _.bind(f, wrapper)() if f?
     catch ex
       if ex.message == "undefined is not a function"
-        throw [tag]
-      else if tag != 'root_cempl_document'
-        ex.push(tag)
-        throw ex
+        console.error("Error in tag stack:")
+        printTagStack(tagStack)
       else
-        console.log "Tag stack #{_(ex).reverse().join("->")}"
+        throw ex
 
     # Returns the outer wrapper. It only contains
     #  - eval()
@@ -278,5 +318,5 @@ markup = (registeredFunctions, intag, inattr, incontent) ->
     outer
 
 module.exports = (f) ->
-  markup({}, 'root_cempl_document', f)
+  markup(null, {}, 'root_cempl_document', f)
 
