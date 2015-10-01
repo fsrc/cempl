@@ -161,6 +161,9 @@ raw = html(->
 ```
 
 # Versioning
+## 0.0.9
+Started on error handeling.
+
 ## 0.0.8
  * Updated documentation
  * Corrected bug where empty tags wasn’t allowed
