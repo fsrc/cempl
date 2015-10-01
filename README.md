@@ -161,6 +161,10 @@ raw = html(->
 ```
 
 # Versioning
+## 0.1.0
+Major release. I think cempl is ready for other developers now. The only thing
+added to this version is printing tag stack on error.
+
 ## 0.0.9
 Started on error handeling.
 

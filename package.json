@@ -1,6 +1,6 @@
 {
   "name": "cempl",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "HTML generator / template engine based on Coffee-Script",
   "main": "index.js",
   "directories": {
