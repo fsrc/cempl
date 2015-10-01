@@ -133,7 +133,11 @@ markup = (registeredFunctions, intag, inattr, incontent) ->
       #          args... - any arguments that the function takes
       # out:     unknown
       ###
-      apply : (f, args...) -> _.bind(f, wrapper, args...)()
+      apply : (f, args...) ->
+        if not f?
+          console.log "Warning, tried to apply subnodes in tag #{tag}"
+        else
+          _.bind(f, wrapper, args...)()
 
       register : (name, f) ->
         if _.isObject(name)
@@ -256,7 +260,16 @@ markup = (registeredFunctions, intag, inattr, incontent) ->
 
     # Execute the content function so that we can generate
     # inner html to this tag
-    _.bind(f, wrapper)() if f?
+    try
+      _.bind(f, wrapper)() if f?
+    catch ex
+      if ex.message == "undefined is not a function"
+        throw [tag]
+      else if tag != 'root_cempl_document'
+        ex.push(tag)
+        throw ex
+      else
+        console.log "Tag stack #{_(ex).reverse().join("->")}"
 
     # Returns the outer wrapper. It only contains
     #  - eval()

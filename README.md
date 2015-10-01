@@ -165,6 +165,7 @@ raw = html(->
  * Updated documentation
  * Corrected bug where empty tags wasn’t allowed
  * @register now handles objects and arrays aswell as a name and a function
+
 ## 0.0.7
 Added @register
 
