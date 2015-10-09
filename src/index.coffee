@@ -2,22 +2,22 @@ _ = require('lodash')
 
 ## Predefined elements/tags
 elements = [
-  'a', 'abbr', 'acronym', 'efines ', 'address', 'applet',
-  'efines ', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont',
-  'pecifies ', 'bdi', 'bdo', 'big', 'efines ', 'blockquote', 'body', 'br',
-  'button', 'canvas', 'caption', 'center', 'efines ', 'cite', 'code',
+  'a', 'abbr', 'acronym', 'address', 'applet',
+  'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont',
+  'bdi', 'bdo', 'big', 'blockquote', 'body', 'br',
+  'button', 'canvas', 'caption', 'center', 'cite', 'code',
   'col', 'colgroup', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog',
-  'dir', 'efines ', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset',
-  'figcaption', 'figure', 'font', 'efines ', 'footer', 'form', 'frame',
-  'efines ', 'frameset', 'efines ',  'head', 'header', 'hr', 'html',
+  'dir', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset',
+  'figcaption', 'figure', 'font', 'footer', 'form', 'frame',
+  'frameset', 'head', 'header', 'hr', 'html',
   'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label',
   'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'menuitem',
-  'meta', 'meter', 'nav', 'noframes', 'efines ', 'noscript', 'object',
+  'meta', 'meter', 'nav', 'noframes', 'noscript', 'object',
   'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress',
   'q', 'rp', 'rt', 'ruby', 's', 'samp', 'section', 'select',
-  'small', 'source', 'span', 'strike', 'efines ', 'strong', 'style',
+  'small', 'source', 'span', 'strike', 'strong', 'style',
   'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot',
-  'th', 'thead', 'time', 'title', 'tr', 'track', 'tt', 'efines', 'u',
+  'th', 'thead', 'time', 'title', 'tr', 'track', 'tt', 'u',
   'ul', 'var', 'video', 'wbr', 'h1','h2','h3','h4','h5']
 
 
@@ -142,6 +142,7 @@ markup = (tagStack, registeredFunctions, intag, inattr, incontent) ->
   do (tag, attr, f, text) ->
     # keeps track of any child tags
     children = []
+    build = null
 
     ### tagfn()
     # purpose: it's called whenever a tag is executed, for instance
@@ -153,8 +154,9 @@ markup = (tagStack, registeredFunctions, intag, inattr, incontent) ->
     # out:     the current wrapper
     ###
     tagfn = (args...) ->
-      children.push(markup(tagStack, registeredFunctions, args...))
-      wrapper
+      child = markup(tagStack, registeredFunctions, args...)
+      children.push(child)
+      child
 
     # this variable represents all default tags that is defined
     # in the elements list. basically the all array contains a
@@ -267,6 +269,24 @@ markup = (tagStack, registeredFunctions, intag, inattr, incontent) ->
           ).join(' ') if scrattr
           """<script#{attribs}>#{scrcontent}</script>""")
 
+      insert : (f) ->
+        console.log("Trying to insert something into this:")
+        console.log(tag, attr)
+        build(f)
+
+    # Make sure that we get all default tags aswell
+    wrapper = _.assign(wrapper, all, registeredFunctions)
+
+    # Executes tag
+    build = (f) ->
+      try
+        _.bind(f, wrapper)() if f?
+      catch ex
+        if ex.message == "undefined is not a function"
+          console.error("Error in tag stack:")
+          printTagStack(tagStack)
+        else
+          throw ex
 
     outer =
       ### before()
@@ -277,6 +297,11 @@ markup = (tagStack, registeredFunctions, intag, inattr, incontent) ->
       # purpose: insert element in position after this tag
       ###
       after  : (f) -> throw "Not implemented"
+
+      ### insert()
+      # purpose: insert elements into the tag, after the tag was created
+      ###
+      insert : (f) -> build(f)
 
       # Evaluate to string
       eval : () ->
@@ -297,23 +322,14 @@ markup = (tagStack, registeredFunctions, intag, inattr, incontent) ->
         else
           inner
 
-    # Make sure that we get all default tags aswell
-    wrapper = _.assign(wrapper, all, registeredFunctions)
-
     # Execute the content function so that we can generate
     # inner html to this tag
-    try
-      _.bind(f, wrapper)() if f?
-    catch ex
-      if ex.message == "undefined is not a function"
-        console.error("Error in tag stack:")
-        printTagStack(tagStack)
-      else
-        throw ex
+    build(f)
 
     # Returns the outer wrapper. It only contains
     #  - eval()
     #  - before()
+    #  - insert()
     #  - after()
     outer
 
